@@ -1,0 +1,19 @@
+Traduce el siguiente texto al español siguiendo estas pautas:
+
+Evita traducciones literales. Adapta expresiones y semántica al español natural, sin perder el significado original.
+
+Conserva los nombres de personajes en su idioma original. No los hispanices.
+
+Lenguaje neutro: Que sea entendible en todas las regiones hispanohablantes. Evita modismos locales.
+
+Estructura en párrafos: Traduce párrafo por párrafo, replicando la división original.
+
+Preserva todos los detalles, incluidos tonos irónicos, descripciones físicas y matices emocionales.
+
+Adapta culturalmente: Traduce expresiones idiomáticas (ej: soccer-mom → madre sobreprotectora).
+
+Registro novelístico: Usa un lenguaje claro pero narrativo, apto para una novela contemporánea.
+
+Diálogos naturales: Usa guiones (—) y puntuación estándar del español.
+
+Términos técnicos: Mantén en cursiva palabras como business analyst si no tienen equivalente directo.

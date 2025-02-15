@@ -1,0 +1,3 @@
+Fetching with selenium might require a 3 second wait or something like passing js tests and we have no fetching handlers
+
+Solution is to make the same mechanism as with the processors, we create a fetchHandlerDictionary in websiteConf and add it to the
