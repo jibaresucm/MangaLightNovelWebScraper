@@ -17,11 +17,11 @@ class ChapterProcessor(Processor):
 class ImageChapterProcessor(ChapterProcessor):
 
     def process(self, content):
-        chaptersoup = BeautifulSoup(content.data, "html.parser")
+        pagesoup = BeautifulSoup(content.data, "html.parser")
 
-        if not chaptersoup: return
+        if not pagesoup: return
 
-        chapter_image_list = chaptersoup.select_one(self.info_container)
+        chapter_image_list = pagesoup.select_one(self.info_container)
 
         if not chapter_image_list: return
 
@@ -32,11 +32,11 @@ class ImageChapterProcessor(ChapterProcessor):
 class TextChapterProcessor(ChapterProcessor):
 
     def process(self, content):
-        chaptersoup = BeautifulSoup(content.data, "html.parser")
+        pagesoup = BeautifulSoup(content.data, "html.parser")
 
-        if not chaptersoup: return
+        if not pagesoup: return
 
-        chapter_reader = chaptersoup.select_one(self.info_container)
+        chapter_reader = pagesoup.select_one(self.info_container)
         if not chapter_reader: return
 
         chapter_content = chapter_reader.find_all("p")

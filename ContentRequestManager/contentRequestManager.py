@@ -33,17 +33,17 @@ class ContentRequestManager():
         #Process handlers are classes that execute a script specific to the website and contain all the css descriptors of the data
         elem = ContentResponse()
         processed_data = []
-        for a in response_list:
+        for elem in response_list:
             if(elem.successful):
                 try:
-                    processed_data.append(self.websiteDictionary[elem.parent_url].getProcessorHandlerFor(elem.content_type).process(elem.data))
+                    processed_data.append(self.websiteDictionary[elem.parent_url].getProcessorHandlerFor(elem.content_type).process(elem))
                 except:
                   processed_data.append(-1)  
             else:
                 processed_data.append(-1)
             #Else set in db as request failed and notify also do try catch in process() to catch exceptions if an exception is catched set as failed in db and notify
         
-        for res, data in response_list, processed_data:
+        for data in processed_data:
             pass #Add new requests in db with previous content_request info or save the data in storage system
         
 

@@ -1,44 +1,50 @@
 from bs4 import BeautifulSoup
 from processor import Processor
+from processedData import ProcessedData
+from Database.contentRequest import ContentRequest
 #Cases wto parse chapters: chapters.size = 0, no nextButton, all chapters in 1 page, all chapters after 1 load more click, api requests
 
 #Use the urls to fetch the chapter (page prefix and suffix) when possible
 #Next option is apiCalls
 
 #Returns a list of the links to all the chapters of a book
+class BookConfiguration():
+    def __init__(self, name, synopsis, parent_url, content, save_path):
+        self.name = name
+        self.synopsis = synopsis
+        self.parent_url = parent_url
+        self.content = content
+        self.save_path = save_path
 
 class BookProcessor(Processor):
 
-    def __init__(self):
+    def __init__(self, info_container, preppend_to_url, chapter_type, append_to_url):
         super().__init__()
+        self.preppend_to_url = preppend_to_url
+        self.append_to_url = append_to_url
+        self.chapter_type = chapter_type
+        self.info_container = info_container
 
-    def getChaptersLinkFromHTMLS(htmls: list, parent_url: str, chapter_list_css: str):
+class StandardBookProcessor(BookProcessor):
+    def process(self, content):
+        #Add error checking and save at least the name of the book
+
+        pagesoup = BeautifulSoup(content.data, "html.parser")
+        if not pagesoup: return
+
+        chaptersoup = pagesoup.select_one(self.info_container)
+        if not chaptersoup: return
+
+        chaptersoup = chaptersoup.find_all("a")
+        if not chaptersoup: return
+                
         chapters = []
-        for elem in htmls:
-            chapterssoup = BeautifulSoup(elem, "html.parser")
-            chapterssoup = chapterssoup.select_one(chapter_list_css)
-
-            chaptersSoup = chapterssoup.find_all("a")
-            for c in chaptersSoup:
-                chapters.append(parent_url + c["href"])
+        for c in chaptersoup:
+            chapters.append(ContentRequest(self.preppend_to_url + c['href'] + self.append_to_url, content.parent_url, self.chapter_type,"", content.save_path + "/" +c.get_text()))
         
+        ret = ProcessedData("save_n_fetch", chapters)
         return chapters
 
-"""def processChapterHTMLSToText(chapters, bookName, text_container):
-    try:
-        dir = "./Novels/" + bookName
-        os.mkdir(dir)
-    except:
-        print("Error making dir "+ dir +" it might already be created")
 
-    chapter_count = 1
-    for chap_url in chapters:
-        html = requestsGet(chap_url)
-        chapter_text = processTextChapterHtml(html, text_container)
-        dir = "../Content/Novels/" + bookName + "/Chapter " + str(chapter_count) + ".txt"
-        with open(dir, "w", encoding="utf-8") as file:
-            file.write(chapter_text)
-        chapter_count += 1
-        time.sleep(3) """
 
 
