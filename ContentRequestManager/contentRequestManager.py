@@ -1,5 +1,7 @@
 from Database.contentRequestDAO import ContentRequestDAO
 from ContentFetchers.contentResponse import ContentResponse
+from ContentProcessors.processedData import ProcessedData
+import os
 
 class ContentRequestManager():
 
@@ -10,44 +12,74 @@ class ContentRequestManager():
         self.databaseDAO = ContentRequestDAO()
         self.fetchingRequirements = {}
 
-    #Function to handle content
+    #Function to get process and handle contentRequests and its response
     def handleContentRequests(self):
         #Get from db uncompleted
         uncompleted_requests = self.databaseDAO.getContentRequests()
 
-        #Fetch
-        #We look for a websiteConf that matches the parent url of the request to get the method of the fetching
+        self.distributeRequestsToFetchers()
+        
+        response_list = self.getResponseList()
+
+        processed_data = self.processResponses(response_list)
+        
+        self.handleProcessedData(processed_data)
+
+    #Adds the content requests to its corresponding fetcher looking for the configuration in the websiteConf dict
+    def distributeRequestsToFetchers(self, uncompleted_requests):
         for elem in uncompleted_requests:
             self.fetchersDictionary[self.websiteDictionary[elem.parent_url].getFetchOptionFor(elem.content_type)].addRequest(elem)
-        
-        #Launch the fetching threads TODO (getRequests in fetchersDictionary)
+
+    #Launches the fetchers and gets the responses, it puts them all in a list
+    def getResponseList(self)-> list:
         response_list = []
         
-        for elem in self.fetchersDictionary:
-            pass #Launch getRequests for each fetcher and save in response_list
-        
-        #Process functions should return content or a list of urls to fetch later
-        #Return an image/text in case of content
-        #Return a list of url of chapters or mangas in case of book/website
-        #Each content request should have its path if path is null it means that it is the first
-        #Process handlers are classes that execute a script specific to the website and contain all the css descriptors of the data
-        elem = ContentResponse()
+        for elem in self.fetchersDictionary.values():
+            responses = elem.get_requests()# TODO Make the fetchers return a contentResponseObject list
+            for response in responses:
+                response_list.append(response)
+        return response_list
+
+    #With the responses already fetched we extract the valuable info of the html and return it
+    def processResponses(self, response_list)-> list:
         processed_data = []
         for elem in response_list:
             if(elem.successful):
                 try:
                     processed_data.append(self.websiteDictionary[elem.parent_url].getProcessorHandlerFor(elem.content_type).process(elem))
+                    self.databaseDAO.setAsComplete(elem.url)
                 except:
-                  processed_data.append(-1)  
+                    processed_data.append(-1)
+                    self.databaseDAO.setAsFailed(elem.url)
             else:
                 processed_data.append(-1)
-            #Else set in db as request failed and notify also do try catch in process() to catch exceptions if an exception is catched set as failed in db and notify
-        
+                self.databaseDAO.setAsFailed(elem.url)
+        return processed_data
+
+    #With the processed data we save the information, save content requests to the database to be launched later and make directories to prepare for arrival of info
+    def handleProcessedData(self, processed_data):
         for data in processed_data:
-            pass #Add new requests in db with previous content_request info or save the data in storage system
-        
+            if data == -1: continue
 
-        #Process fetched data
-        #Save fetched data or add new requests
+            if(data.action == "save_n_fetch"):
+                pass
+            elif (data.action == "fetch"):
+                pass
+            elif(data.action == "save"):
+                pass
 
-        #Handle fetch errors (observer)
+    def saveBook(self, obj):
+        try:
+            os.mkdir(obj.save_path)
+        except:
+            pass
+
+        with open(obj.save_path+ "/data.txt", "w")as fd:
+            fd.write(obj.name + "\n" + obj.synopsis)
+    
+    def addToFetch(self, new_request_list: list):
+        for elem in new_request_list:
+            try:
+                self.databaseDAO.addContentRequestEntry(elem)
+            except:
+                pass

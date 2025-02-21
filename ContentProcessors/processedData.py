@@ -1,5 +1,5 @@
 class ProcessedData():
-    def __init__(self, action, fetch_list, save_data, save_path):
+    def __init__(self, action: str, fetch_list: list, save_data, save_path: str):
         self.action = action
         self.fetch_list = fetch_list
         self.save_data = save_data
