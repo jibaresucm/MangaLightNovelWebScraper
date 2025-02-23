@@ -1,9 +1,11 @@
 from selenium import webdriver
 import asyncio
 import time
+from Database.contentRequest import ContentRequest
+from ContentFetchers.contentResponse import ContentResponse
 
 class SeleniumFetcher():
-    max_webdrivers = 5
+    max_webdrivers = 1
     webdrivers = []
     request_list = []
 
@@ -24,11 +26,8 @@ class SeleniumFetcher():
     #Limit to max_webdrivers with a infinite amout of toFetchUrls, do not use coroutines since the are executend in a single thread and therefore not optimal becouse 
     #of context chnange and the fact that we are most of the time not "waiting" but processing the visuals
 
-    #TODO rethink this for contentRequests not urls
     async def getRequests(self):
-        start = time.time()
-        urls_size = len(self.url_list)
-        print(f"Trying to fetch {urls_size} urls")
+        req_size = len(self.request_list)
         all_responses = []
 
         subSetUrls = []
@@ -38,7 +37,7 @@ class SeleniumFetcher():
             subSetUrls.append(elem)
             tasks.append(self.fetchSingle(self.webdrivers[count % self.max_webdrivers], elem))
             count += 1
-            if(count % self.max_webdrivers == 0 or count == urls_size):
+            if(count % self.max_webdrivers == 0 or count == req_size):
 
                 responses = await asyncio.gather(*tasks)
 
@@ -47,13 +46,12 @@ class SeleniumFetcher():
                 
                 subSetUrls.clear()
                 tasks.clear()
-        print(f"{time.time() - start}s")
 
-        self.url_list.clear()
+        self.request_list.clear()
         return all_responses
 
     #Use the extra data to take in more steps like waiting 3 seconds or pressing some buttons and return a list always
-    async def fetchSingle(self, webdriver: webdriver.Chrome, url):
-        webdriver.get(url)
-        return webdriver.page_source
+    async def fetchSingle(self, webdriver: webdriver.Chrome, req : ContentRequest) -> ContentResponse:
+        webdriver.get(req.url)
+        return ContentResponse(req.url, req.parent_url, req.content_type, req.save_path, webdriver.page_source, True)
 

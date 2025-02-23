@@ -3,7 +3,6 @@ class ProcessedData():
         self.action = action
         self.fetch_list = fetch_list
         self.save_data = save_data
-        self.save_path = save_path
 
 #Problem: we need a universal way to send data to save and request
 

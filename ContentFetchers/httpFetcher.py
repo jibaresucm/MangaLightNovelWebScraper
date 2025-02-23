@@ -1,14 +1,7 @@
-#Module where the webbrowser and request get the html page sources
-#The purpose of it is to do it in an async way
-#We can use a sql database with chapter requests table and
-
-#https requests -> url, type="text_chapter, image_chapter, chapters, books", websiteurl, 
-#selenium requests -> url
-
-#Website conf objects that stores its website
-
 import aiohttp
 import asyncio
+from Database.contentRequest import ContentRequest
+from ContentFetchers.contentResponse import ContentResponse
 
 
 
@@ -26,20 +19,18 @@ class HttpFetcher():
 
     async def getRequests(self):
         async with aiohttp.ClientSession() as session:
-            tasks = [self.fetchSingle(session, currUrl) for currUrl in self.request_list]
+            tasks = [self.fetchSingle(session, req) for req in self.request_list]
             responses = await asyncio.gather(*tasks)
             self.request_list.clear()
             return responses
 
-    def addRequest(self, url):
-        self.request_list.append(url)
+    def addRequest(self, req :ContentRequest):
+        self.request_list.append(req)
 
-    async def fetchSingle(self, session: aiohttp.ClientSession, url):
-        async with session.get(url, headers=self.headers ) as response:
+    async def fetchSingle(self, session: aiohttp.ClientSession, req:ContentRequest)-> ContentRequest:
+        async with session.get(req.url, headers=self.headers ) as response:
 
             if(response.status == 200):
-                return await response.text()
+                return ContentResponse(req.url, req.parent_url, req.content_type, req.save_path, await response.text(), True)
             else: 
-                return -1
-
-#asyncio.get_event_loop().run_until_complete()
+                return ContentResponse(req.url, req.parent_url, req.content_type, req.save_path, "", False)

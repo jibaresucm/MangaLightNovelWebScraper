@@ -7,7 +7,7 @@ class WebsiteConf():
         self.chapter_type = chapter_type
         self.books_url = books_url
 
-        self.fetchOptions = {"website": website_fetch_option, "book": book_fetch_option, "chapter": chapter_fetch_option}
+        self.fetchOptions = {"website": website_fetch_option, "book": book_fetch_option, "chapter": chapter_fetch_option} #selenium or http
         self.processorHandlers = {"website": website_process_handler, "book": book_process_handler, "chapter": chapter_process_handler}
 
     #Starts the fetching process by adding a content request of the book_url to the database

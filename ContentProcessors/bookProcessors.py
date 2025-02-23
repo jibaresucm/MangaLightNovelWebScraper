@@ -53,7 +53,7 @@ class StandardBookProcessor(BookProcessor):
         for c in chaptersoup:
             chapters.append(ContentRequest(self.preppend_to_url + c['href'] + self.append_to_url, content.parent_url, self.chapter_type,"", content.save_path + "/" + cleanString(c.get_text()) + ".txt"))
         
-        ret = ProcessedData("save_n_fetch", chapters, BookConfiguration(title, synopsis, content.parent_url, "BookConf", content.save_path + "/" + title), "test")
+        ret = ProcessedData("save_n_fetch", chapters, BookConfiguration(title, synopsis, content.parent_url, "BookConf", content.save_path + "/" + title))
         return ret
 
 def cleanString(title: str) -> str:
@@ -75,5 +75,7 @@ def cleanString(title: str) -> str:
         
     return ret
 
+def buildProcessedData(fetch_list):
+    return ProcessedData("save_n_fetch",fetch_list,)
 
 
