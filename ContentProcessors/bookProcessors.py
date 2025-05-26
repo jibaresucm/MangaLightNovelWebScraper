@@ -9,11 +9,11 @@ from Database.contentRequest import ContentRequest
 
 #Returns a list of the links to all the chapters of a book
 class BookConfiguration():
-    def __init__(self, name, synopsis, parent_url, content, save_path):
+    def __init__(self, name, synopsis, parent_url, save_path):
         self.name = name
         self.synopsis = synopsis
         self.parent_url = parent_url
-        self.content = content
+        self.content = "BookConf"
         self.save_path = save_path
 
 class BookProcessor(Processor):
@@ -51,9 +51,9 @@ class StandardBookProcessor(BookProcessor):
                 
         chapters = []
         for c in chaptersoup:
-            chapters.append(ContentRequest(self.preppend_to_url + c['href'] + self.append_to_url, content.parent_url, self.chapter_type,"", content.save_path + "/" + cleanString(c.get_text()) + ".txt"))
+            chapters.append(ContentRequest(self.preppend_to_url + c['href'] + self.append_to_url, content.parent_url, "chapter","", content.save_path + "/" +title +"/"+ cleanString(c.get_text())))
         
-        ret = ProcessedData("save_n_fetch", chapters, BookConfiguration(title, synopsis, content.parent_url, "BookConf", content.save_path + "/" + title))
+        ret = ProcessedData("save_n_fetch", chapters, BookConfiguration(title, synopsis, content.parent_url, content.save_path + "/" + title))
         return ret
 
 def cleanString(title: str) -> str:
@@ -66,13 +66,18 @@ def cleanString(title: str) -> str:
         if reached and elem != '\n' and elem != ' ': 
             if previousSpace:
                 ret += ' ' + elem
+            elif elem == ':' or elem == '/':
+                ret += '~'
+            elif elem == '?':
+                ret += 'X'
             else:
                 ret += elem
 
             previousSpace = False
 
         if reached and (elem == ' ' or elem == '\n'): previousSpace = True
-        
+    
+
     return ret
 
 def buildProcessedData(fetch_list):
